@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual IR · ADSO SENA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── VARIABLES ────────────────────────────────────────────── */
+:root {
+  --g:   #39A900;
+  --g2:  #2d8600;
+  --g-lt:#e8f5e0;
+  --g-bg:#f4fbee;
+  --navy:#003366;
+  --blue:#1F497D;
+  --ink: #1a1a2e;
+  --mid: #4a5568;
+  --pale:#8492a6;
+  --bg:  #f8f9fb;
+  --card:#ffffff;
+  --bdr: #e2e8f0;
+  --yel: #fefce8;
+  --yel2:#fde68a;
+  --org: #fff7ed;
+  --org2:#fed7aa;
+  --pur: #faf5ff;
+  --pur2:#ddd6fe;
+  --r:   8px;
+  --r2:  14px;
+  --sh:  0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.06);
+  --sh2: 0 4px 20px rgba(0,0,0,.12);
+  --font:'DM Sans', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+  --serif:'DM Serif Display', serif;
+  --sidebar:280px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.7;display:flex;min-height:100vh;overflow-x:hidden}
+
+/* ── SIDEBAR ──────────────────────────────────────────────── */
+#sidebar{
+  width:var(--sidebar);min-width:var(--sidebar);
+  background:var(--navy);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;
+  overflow-y:auto;z-index:100;
+  transition:transform .3s ease;
+}
+#sidebar-logo{
+  padding:24px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+#sidebar-logo .badge{
+  display:inline-block;background:var(--g);color:#fff;
+  font-size:.65rem;font-weight:700;letter-spacing:.08em;
+  padding:2px 8px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;
+}
+#sidebar-logo h1{
+  font-family:var(--serif);color:#fff;font-size:1.25rem;line-height:1.3;
+}
+#sidebar-logo p{color:rgba(255,255,255,.5);font-size:.72rem;margin-top:4px}
+
+#progress-bar{
+  height:3px;background:rgba(255,255,255,.1);margin:0 20px;border-radius:2px;overflow:hidden;
+}
+#progress-fill{height:100%;background:var(--g);width:0%;transition:width .4s ease;border-radius:2px}
+#progress-label{color:rgba(255,255,255,.4);font-size:.65rem;padding:6px 20px 0;text-align:right}
+
+nav ul{list-style:none;padding:12px 0 20px}
+nav li a{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 20px;color:rgba(255,255,255,.65);
+  text-decoration:none;font-size:.8rem;font-weight:500;
+  transition:all .2s;position:relative;border-left:3px solid transparent;
+}
+nav li a:hover{color:#fff;background:rgba(255,255,255,.06);border-left-color:rgba(255,255,255,.3)}
+nav li a.active{color:#fff;background:rgba(57,169,0,.15);border-left-color:var(--g)}
+nav li a .icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+nav li.section-title{
+  padding:16px 20px 6px;
+  color:rgba(255,255,255,.3);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+}
+nav li.visited a::after{
+  content:'✓';position:absolute;right:14px;font-size:.7rem;
+  color:var(--g);opacity:.8;
+}
+
+/* ── MAIN ─────────────────────────────────────────────────── */
+#main{
+  margin-left:var(--sidebar);flex:1;
+  min-height:100vh;
+}
+#topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(248,249,251,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--bdr);
+  padding:12px 40px;display:flex;align-items:center;justify-content:space-between;
+}
+#topbar .breadcrumb{font-size:.78rem;color:var(--pale)}
+#topbar .breadcrumb span{color:var(--g);font-weight:600}
+#hamburger{display:none;background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--ink)}
+
+#content{max-width:860px;margin:0 auto;padding:48px 40px 80px}
+
+/* ── SECTIONS ─────────────────────────────────────────────── */
+.section{display:none;animation:fadeUp .35s ease}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TYPOGRAPHY ───────────────────────────────────────────── */
+.page-hero{
+  background:linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  border-radius:var(--r2);padding:40px 44px;margin-bottom:40px;
+  position:relative;overflow:hidden;
+}
+.page-hero::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:180px;height:180px;border-radius:50%;
+  background:rgba(57,169,0,.15);
+}
+.page-hero .tag{
+  display:inline-block;background:var(--g);color:#fff;
+  font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;margin-bottom:14px;
+}
+.page-hero h2{font-family:var(--serif);color:#fff;font-size:2rem;line-height:1.25;margin-bottom:10px}
+.page-hero p{color:rgba(255,255,255,.72);font-size:.9rem;max-width:520px;line-height:1.6}
+
+h2.section-h{font-family:var(--serif);font-size:1.65rem;color:var(--navy);margin:40px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--g-lt)}
+h3.sub-h{font-size:1.05rem;font-weight:700;color:var(--blue);margin:28px 0 10px;display:flex;align-items:center;gap:8px}
+h3.sub-h .dot{width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0}
+h4.mini-h{font-size:.9rem;font-weight:700;color:var(--ink);margin:20px 0 8px}
+p{color:var(--mid);font-size:.92rem;margin-bottom:12px;line-height:1.75}
+strong{color:var(--ink)}
+
+/* ── CALLOUT BOXES ────────────────────────────────────────── */
+.box{border-radius:var(--r);padding:18px 22px;margin:20px 0;border-left:4px solid}
+.box-def{background:var(--navy);border-color:var(--g);border-left-width:0;border-radius:var(--r2);padding:20px 24px;color:#fff}
+.box-def .box-title{color:var(--g);font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.box-def p{color:rgba(255,255,255,.85);font-size:.9rem;margin:0}
+.box-tip{background:var(--g-bg);border-color:var(--g)}
+.box-tip .box-title{color:var(--g2);font-weight:700;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.box-warn{background:var(--yel);border-color:#d97706}
+.box-warn .box-title{color:#92400e;font-weight:700;font-size:.8rem;text-transform:uppercase;margin-bottom:6px}
+.box-info{background:#eff6ff;border-color:#3b82f6}
+.box-info .box-title{color:#1d4ed8;font-weight:700;font-size:.8rem;text-transform:uppercase;margin-bottom:6px}
+.box-title .ico{margin-right:6px}
+.box p{margin:0;font-size:.88rem}
+
+/* ── CARDS GRID ───────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:20px 0}
+.card{
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);
+  padding:20px;box-shadow:var(--sh);
+  transition:transform .2s,box-shadow .2s;
+}
+.card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.card .card-icon{font-size:1.8rem;margin-bottom:10px}
+.card h4{font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:6px}
+.card p{font-size:.82rem;color:var(--mid);margin:0;line-height:1.5}
+.card.highlight{border-color:var(--g);background:var(--g-bg)}
+.card.highlight h4{color:var(--g2)}
+
+/* ── COMPARISON TABLE ─────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;margin:20px 0;border-radius:var(--r2);box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead tr{background:var(--navy)}
+thead th{color:#fff;padding:12px 16px;font-weight:600;font-size:.78rem;letter-spacing:.04em;text-align:left}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:hover{background:var(--g-bg)}
+tbody td{padding:10px 16px;color:var(--mid);border-bottom:1px solid var(--bdr);vertical-align:top;line-height:1.5}
+tbody td:first-child{font-weight:600;color:var(--ink)}
+.badge-rf{background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700}
+.badge-rnf{background:#fce7f3;color:#9d174d;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700}
+.badge-rad{background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700}
+.badge-a{background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:.72rem;font-weight:700}
+.badge-m{background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:4px;font-size:.72rem;font-weight:700}
+.badge-b{background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:4px;font-size:.72rem;font-weight:700}
+
+/* ── TABS ─────────────────────────────────────────────────── */
+.tabs{margin:24px 0}
+.tab-list{display:flex;gap:4px;border-bottom:2px solid var(--bdr);margin-bottom:0;flex-wrap:wrap}
+.tab-btn{
+  padding:10px 20px;border:none;background:none;cursor:pointer;
+  font-family:var(--font);font-size:.82rem;font-weight:600;color:var(--pale);
+  border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:all .2s;border-radius:var(--r) var(--r) 0 0;
+}
+.tab-btn:hover{color:var(--ink);background:var(--bg)}
+.tab-btn.active{color:var(--g2);border-bottom-color:var(--g);background:#fff}
+.tab-panel{display:none;background:#fff;border:1px solid var(--bdr);border-top:none;border-radius:0 0 var(--r2) var(--r2);padding:24px}
+.tab-panel.active{display:block;animation:fadeUp .25s ease}
+
+/* ── ACCORDION ────────────────────────────────────────────── */
+.accordion{margin:12px 0}
+.acc-item{border:1px solid var(--bdr);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;box-shadow:var(--sh)}
+.acc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;background:var(--card);cursor:pointer;
+  transition:background .2s;user-select:none;
+}
+.acc-header:hover{background:var(--g-bg)}
+.acc-header.open{background:var(--navy);color:#fff}
+.acc-header .acc-title{font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:10px}
+.acc-header .acc-num{
+  width:28px;height:28px;border-radius:50%;background:var(--g);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0;
+}
+.acc-header.open .acc-title{color:#fff}
+.acc-arrow{transition:transform .3s;font-size:.8rem;color:var(--pale)}
+.acc-header.open .acc-arrow{transform:rotate(180deg);color:#fff}
+.acc-body{display:none;padding:24px;border-top:1px solid var(--bdr)}
+.acc-body.open{display:block;animation:fadeUp .25s ease}
+.acc-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.acc-tag{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px}
+.acc-tag.dom{background:#dbeafe;color:#1e40af}
+.acc-tag.dur{background:#fce7f3;color:#9d174d}
+.acc-tag.sk{background:var(--g-bg);color:var(--g2)}
+
+/* ── INVENTARIO INTERACTIVO ───────────────────────────────── */
+.inv-table-wrap{overflow-x:auto;margin:16px 0}
+.inv-table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:780px}
+.inv-table thead th{background:var(--navy);color:#fff;padding:10px 12px;font-size:.74rem;font-weight:600;text-align:left}
+.inv-table tbody tr:nth-child(even){background:var(--bg)}
+.inv-table tbody td{padding:8px 12px;border-bottom:1px solid var(--bdr);vertical-align:top;color:var(--mid)}
+.inv-table tbody td:first-child{font-family:var(--mono);font-size:.72rem;color:var(--ink);font-weight:600}
+.inv-table tbody td.desc{max-width:260px;line-height:1.4}
+
+/* ── ENTREVISTA Q-LIST ────────────────────────────────────── */
+.q-list{list-style:none;margin:12px 0}
+.q-list li{
+  display:flex;gap:14px;padding:12px 16px;
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);
+  margin-bottom:8px;font-size:.87rem;color:var(--mid);
+  transition:border-color .2s;
+}
+.q-list li:hover{border-color:var(--g)}
+.q-list .qnum{
+  min-width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;
+}
+.q-open .qnum{background:var(--blue)}
+.q-closed .qnum{background:var(--g)}
+.q-hybrid .qnum{background:#7c3aed}
+
+/* ── TIPO BADGE EN PREGUNTAS ──────────────────────────────── */
+.q-type{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;margin-right:6px;text-transform:uppercase}
+.qt-a{background:#dbeafe;color:#1e40af}
+.qt-c{background:#d1fae5;color:#065f46}
+.qt-h{background:#ede9fe;color:#5b21b6}
+
+/* ── QUIZ ─────────────────────────────────────────────────── */
+.quiz-card{
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);
+  padding:24px;margin:16px 0;box-shadow:var(--sh);
+}
+.quiz-card .q-text{font-weight:600;font-size:.92rem;color:var(--ink);margin-bottom:16px}
+.quiz-card .q-num{color:var(--g);font-weight:800;font-size:.8rem;margin-bottom:8px}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 14px;
+  border:1.5px solid var(--bdr);border-radius:var(--r);cursor:pointer;
+  font-size:.87rem;color:var(--mid);transition:all .2s;background:#fff;
+  text-align:left;width:100%;font-family:var(--font);
+}
+.opt:hover{border-color:var(--g);background:var(--g-bg);color:var(--ink)}
+.opt.correct{border-color:#16a34a;background:#f0fdf4;color:#15803d;pointer-events:none}
+.opt.wrong{border-color:#dc2626;background:#fef2f2;color:#b91c1c;pointer-events:none}
+.opt.disabled{pointer-events:none;opacity:.6}
+.opt .opt-letter{
+  min-width:22px;height:22px;border-radius:50%;
+  background:var(--bdr);color:var(--ink);font-weight:700;font-size:.72rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.opt.correct .opt-letter{background:#16a34a;color:#fff}
+.opt.wrong .opt-letter{background:#dc2626;color:#fff}
+.feedback{
+  margin-top:14px;padding:12px 16px;border-radius:var(--r);
+  font-size:.84rem;font-weight:500;display:none;
+}
+.feedback.show{display:block}
+.feedback.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.feedback.ko{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+
+#quiz-score{
+  background:var(--navy);color:#fff;border-radius:var(--r2);
+  padding:24px;text-align:center;margin-top:24px;display:none;
+}
+#quiz-score .score-big{font-family:var(--serif);font-size:3rem;color:var(--g);line-height:1}
+#quiz-score .score-label{color:rgba(255,255,255,.7);font-size:.9rem;margin-top:6px}
+#quiz-score .score-msg{margin-top:14px;font-size:.9rem;color:rgba(255,255,255,.85)}
+
+/* ── PLANTILLA BUILDER ────────────────────────────────────── */
+.template-builder{
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r2);
+  padding:24px;box-shadow:var(--sh);
+}
+.template-builder h4{color:var(--navy);margin-bottom:16px;font-size:1rem}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field-row.full{grid-template-columns:1fr}
+label{font-size:.78rem;font-weight:600;color:var(--ink);display:block;margin-bottom:4px}
+input[type=text],select,textarea{
+  width:100%;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:var(--r);
+  font-family:var(--font);font-size:.85rem;color:var(--ink);background:#fff;
+  transition:border-color .2s;outline:none;
+}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--g)}
+textarea{resize:vertical;min-height:70px;line-height:1.5}
+select{cursor:pointer}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:var(--r);border:none;cursor:pointer;
+  font-family:var(--font);font-size:.85rem;font-weight:600;
+  transition:all .2s;text-decoration:none;
+}
+.btn-primary{background:var(--g);color:#fff}
+.btn-primary:hover{background:var(--g2);transform:translateY(-1px)}
+.btn-secondary{background:var(--bdr);color:var(--ink)}
+.btn-secondary:hover{background:#cbd5e0}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:#002244}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+#inv-preview{
+  margin-top:20px;overflow-x:auto;
+  border:1px dashed var(--bdr);border-radius:var(--r);padding:16px;background:var(--bg);
+  min-height:80px;
+}
+#inv-preview p.placeholder{color:var(--pale);font-size:.83rem;text-align:center;padding:20px}
+
+/* ── PROCESO VISUAL ───────────────────────────────────────── */
+.process-steps{display:flex;flex-direction:column;gap:0;margin:20px 0}
+.step{display:flex;gap:20px;padding:0 0 28px}
+.step-left{display:flex;flex-direction:column;align-items:center}
+.step-num{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--navy);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.9rem;flex-shrink:0;
+  border:3px solid var(--g);
+}
+.step-line{width:2px;flex:1;background:linear-gradient(to bottom,var(--g),var(--bdr));margin-top:6px;min-height:20px}
+.step:last-child .step-line{display:none}
+.step-content{flex:1;padding-top:8px}
+.step-content h4{font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:6px}
+.step-content p{font-size:.85rem;color:var(--mid);margin:0;line-height:1.6}
+.step-content .artifacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.artifact{font-size:.7rem;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--g-lt);color:var(--g2)}
+
+/* ── COMPARE 3COL ─────────────────────────────────────────── */
+.compare-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.compare-card{border-radius:var(--r2);padding:20px;border:2px solid}
+.compare-card.rf{border-color:#3b82f6;background:#eff6ff}
+.compare-card.rnf{border-color:#ec4899;background:#fdf2f8}
+.compare-card.rad{border-color:#10b981;background:#f0fdf4}
+.compare-card h4{font-size:.85rem;font-weight:800;margin-bottom:8px}
+.compare-card.rf h4{color:#1e40af}
+.compare-card.rnf h4{color:#9d174d}
+.compare-card.rad h4{color:#065f46}
+.compare-card p{font-size:.8rem;color:var(--mid);margin:0;line-height:1.5}
+.compare-card .key{font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:8px}
+.compare-card.rf .key{background:#dbeafe;color:#1e40af}
+.compare-card.rnf .key{background:#fce7f3;color:#9d174d}
+.compare-card.rad .key{background:#d1fae5;color:#065f46}
+
+/* ── TOOLTIP ──────────────────────────────────────────────── */
+.tip{
+  border-bottom:1.5px dashed var(--g);cursor:help;position:relative;
+  font-weight:600;color:var(--g2);
+}
+.tip::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:var(--navy);color:#fff;font-size:.74rem;font-weight:400;
+  padding:8px 12px;border-radius:var(--r);white-space:normal;min-width:200px;max-width:280px;
+  box-shadow:var(--sh2);line-height:1.5;pointer-events:none;
+  opacity:0;transition:opacity .2s;z-index:200;
+}
+.tip:hover::after{opacity:1}
+
+/* ── SCROLLSPY + VISITED ──────────────────────────────────── */
+.visited-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--g);margin-left:6px;opacity:0;transition:opacity .3s;
+}
+li.visited .visited-dot{opacity:1}
+
+/* ── CODE BLOCK ───────────────────────────────────────────── */
+.code-block{
+  background:#0f172a;border-radius:var(--r);padding:16px 18px;margin:14px 0;
+  position:relative;overflow-x:auto;
+}
+.code-block pre{font-family:var(--mono);font-size:.8rem;color:#e2e8f0;line-height:1.6;white-space:pre-wrap}
+.copy-btn{
+  position:absolute;top:10px;right:10px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.7);padding:4px 10px;border-radius:6px;
+  font-size:.7rem;cursor:pointer;font-family:var(--font);font-weight:600;
+  transition:all .2s;
+}
+.copy-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.copy-btn.copied{background:var(--g);border-color:var(--g);color:#fff}
+
+/* ── MOBILE ───────────────────────────────────────────────── */
+@media(max-width:768px){
+  :root{--sidebar:0px}
+  #sidebar{transform:translateX(-280px);width:280px}
+  #sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.3)}
+  #main{margin-left:0}
+  #hamburger{display:block}
+  #content{padding:28px 20px 60px}
+  .compare-3{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+  .page-hero h2{font-size:1.5rem}
+  .page-hero{padding:28px 24px}
+}
+/* ── PRINT ────────────────────────────────────────────────── */
+@media print{
+  #sidebar,#topbar{display:none}
+  #main{margin-left:0}
+  .section{display:block!important}
+  .acc-body{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+<aside id="sidebar">
+  <div id="sidebar-logo">
+    <div class="badge">SENA · ADSO 228118</div>
+    <h1>Ingeniería de Requisitos</h1>
+    <p>Manual del Aprendiz · Ficha 3065121</p>
+  </div>
+  <div style="padding:10px 20px 0">
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="progress-label">0 / 7 secciones</div>
+  </div>
+  <nav>
+    <ul id="nav-list">
+      <li class="section-title">Inicio</li>
+      <li id="nav-inicio"><a href="#" onclick="showSection('inicio')" class="active"><span class="icon">🏠</span>Bienvenida<span class="visited-dot"></span></a></li>
+
+      <li class="section-title">Fundamentos</li>
+      <li id="nav-conceptos"><a href="#" onclick="showSection('conceptos')"><span class="icon">🧠</span>1. Conceptos base<span class="visited-dot"></span></a></li>
+      <li id="nav-tipos"><a href="#" onclick="showSection('tipos')"><span class="icon">📋</span>2. Tipos de requisitos<span class="visited-dot"></span></a></li>
+      <li id="nav-elicitacion"><a href="#" onclick="showSection('elicitacion')"><span class="icon">🎯</span>3. Técnicas y entrevistas<span class="visited-dot"></span></a></li>
+      <li id="nav-inventario"><a href="#" onclick="showSection('inventario')"><span class="icon">📊</span>4. Inventario de requisitos<span class="visited-dot"></span></a></li>
+
+      <li class="section-title">Práctica</li>
+      <li id="nav-proyectos"><a href="#" onclick="showSection('proyectos')"><span class="icon">🏗️</span>5. Mini-proyectos<span class="visited-dot"></span></a></li>
+      <li id="nav-quiz"><a href="#" onclick="showSection('quiz')"><span class="icon">✅</span>6. Autoevaluación<span class="visited-dot"></span></a></li>
+    </ul>
+  </nav>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════ -->
+<div id="main">
+  <div id="topbar">
+    <div class="breadcrumb">SENA CDMC · ADSO · <span id="breadcrumb-text">Bienvenida</span></div>
+    <button id="hamburger" onclick="toggleSidebar()">☰</button>
+  </div>
+
+  <div id="content">
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 0: INICIO -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="section active" id="sec-inicio">
+    <div class="page-hero">
+      <div class="tag">Manual del Aprendiz · GFPI-F-135</div>
+      <h2>Ingeniería de Requisitos</h2>
+      <p>Aprenderás a descubrir, clasificar y documentar lo que un sistema de software debe hacer, con técnicas reales usadas por los mejores equipos de desarrollo.</p>
+    </div>
+
+    <h2 class="section-h">¿Qué vas a aprender?</h2>
+    <div class="cards">
+      <div class="card highlight">
+        <div class="card-icon">🔍</div>
+        <h4>Descubrir requisitos</h4>
+        <p>Técnicas de elicitación para extraer lo que el cliente realmente necesita.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗂️</div>
+        <h4>Clasificar requisitos</h4>
+        <p>RF, RNF y RAD: entiende la diferencia y cuándo aplica cada tipo.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎤</div>
+        <h4>Diseñar entrevistas</h4>
+        <p>Abierta, cerrada e híbrida. Aprende a preguntar para obtener información útil.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📑</div>
+        <h4>Construir el inventario</h4>
+        <p>El artefacto central de la IR: registra y prioriza todos los requisitos del proyecto.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏗️</div>
+        <h4>Aplicar en proyectos reales</h4>
+        <p>5 mini-proyectos colombianos con inventarios completos de ejemplo.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧩</div>
+        <h4>Evaluarte</h4>
+        <p>Quiz interactivo con feedback inmediato para prepararte para la evaluación.</p>
+      </div>
+    </div>
+
+    <div class="box box-tip" style="margin-top:28px">
+      <div class="box-title"><span class="ico">💡</span>Cómo usar este manual</div>
+      <p>Navega por las secciones en orden usando el menú lateral. Lee cada concepto, explora los ejemplos interactivos y practica con los mini-proyectos antes de la sesión de clase. Al finalizar, completa la autoevaluación.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px">
+      <div class="box box-info">
+        <div class="box-title"><span class="ico">📌</span>Programa</div>
+        <p>Tecnólogo en Análisis y Desarrollo de Software<br><strong>Código:</strong> 228118 · Ficha 3065121</p>
+      </div>
+      <div class="box box-warn">
+        <div class="box-title"><span class="ico">⏱️</span>Duración estimada</div>
+        <p>Lectura completa: <strong>~90 minutos</strong><br>Con ejercicios: <strong>4 horas académicas</strong></p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:36px">
+      <button class="btn btn-primary" onclick="showSection('conceptos')" style="font-size:.95rem;padding:13px 32px">
+        Comenzar → Conceptos base
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 1: CONCEPTOS BASE -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-conceptos">
+    <div class="page-hero">
+      <div class="tag">Sección 1 · Fundamentos</div>
+      <h2>Conceptos Base de la IR</h2>
+      <p>Antes de descubrir requisitos, debes entender la diferencia entre lo que el cliente quiere, lo que le pasa y lo que el sistema debe hacer.</p>
+    </div>
+
+    <h2 class="section-h">¿Qué es la Ingeniería de Requisitos?</h2>
+    <div class="box box-def">
+      <div class="box-title">📖 Definición IEEE</div>
+      <p>Un <strong>requisito</strong> es una condición o capacidad que debe poseer o cumplir un sistema para satisfacer una necesidad del usuario, un contrato o un estándar. La <strong>Ingeniería de Requisitos (IR)</strong> es la disciplina que se ocupa de descubrir, documentar, analizar, validar y gestionar esos requisitos de manera sistemática.</p>
+    </div>
+
+    <p>¿Por qué importa tanto? Más del <strong>60% de los proyectos de software que fallan</strong> tienen errores en los requisitos como causa principal: requisitos incompletos, falta de participación del usuario o cambios no gestionados. <em>Descubrir bien los requisitos desde el inicio ahorra tiempo, dinero y frustración.</em></p>
+
+    <h2 class="section-h">La cadena clave: Necesidad → Problema → Requisito</h2>
+    <p>Esta es la distinción más importante de todo el módulo. Confundirlos es el error más común de los analistas novatos.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Concepto</th><th>Definición</th><th>Pregunta que responde</th><th>Ejemplo concreto</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span style="color:#d97706;font-weight:800">NECESIDAD</span></td>
+            <td>Estado deseado por el cliente. Es subjetivo y declarativo.</td>
+            <td><em>¿Qué quiero lograr?</em></td>
+            <td>«Quiero saber cuándo mis clientes tienen cita sin llamarlos.»</td>
+          </tr>
+          <tr>
+            <td><span style="color:#dc2626;font-weight:800">PROBLEMA</span></td>
+            <td>Brecha entre la situación actual y la deseada. Es observable.</td>
+            <td><em>¿Qué me impide lograrlo hoy?</em></td>
+            <td>«Las citas las anoto en papel y las pierdo con frecuencia.»</td>
+          </tr>
+          <tr>
+            <td><span style="color:#16a34a;font-weight:800">REQUISITO</span></td>
+            <td>Especificación precisa y verificable de lo que el sistema debe hacer.</td>
+            <td><em>¿Qué debe hacer el sistema?</em></td>
+            <td>«El sistema DEBE enviar recordatorio automático 2 horas antes de la cita.»</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-warn">
+      <div class="box-title"><span class="ico">⚠️</span>Error común a evitar</div>
+      <p>No conviertas directamente lo que el cliente dice en un requisito. Primero entiende el problema que hay detrás. El cliente dice <em>«quiero un botón rojo»</em>; el problema es <em>«no encuentro la función de cancelar»</em>; el requisito es <em>«el sistema debe mostrar la opción de cancelar de forma prominente en la pantalla principal»</em>.</p>
+    </div>
+
+    <h2 class="section-h">El ciclo de vida de los requisitos</h2>
+    <p>La IR no es una actividad puntual. Acompaña todo el proyecto en cinco fases iterativas:</p>
+
+    <div class="process-steps">
+      <div class="step">
+        <div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h4>Identificación de Stakeholders</h4>
+          <p>Mapea todas las personas y organizaciones que tienen interés en el sistema: usuarios, patrocinadores, reguladores, proveedores. Si te falta un stakeholder clave, te faltarán sus requisitos.</p>
+          <div class="artifacts"><span class="artifact">Lista de stakeholders</span><span class="artifact">Ficha de interesados</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h4>Elicitación / Descubrimiento</h4>
+          <p>Aplica técnicas para extraer los requisitos: entrevistas, talleres, observación, análisis de documentos, prototipos. Esta es la fase más creativa e interactiva.</p>
+          <div class="artifacts"><span class="artifact">Notas de entrevista</span><span class="artifact">Grabaciones</span><span class="artifact">Actas</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h4>Especificación / Documentación</h4>
+          <p>Redacta los requisitos con lenguaje preciso y verificable. Cada requisito debe poderse probar: debe existir una condición que permita decir «sí, está implementado» o «no, falta».</p>
+          <div class="artifacts"><span class="artifact">ERS</span><span class="artifact">Historias de usuario</span><span class="artifact">Inventario de requisitos</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left"><div class="step-num">4</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h4>Validación y Verificación</h4>
+          <p>Revisa con el cliente que lo documentado refleje sus necesidades reales. Verifica que los requisitos sean completos, consistentes y sin contradicciones entre sí.</p>
+          <div class="artifacts"><span class="artifact">Lista de verificación</span><span class="artifact">Actas de validación</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left"><div class="step-num">5</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h4>Gestión de Requisitos</h4>
+          <p>Controla cambios, versiones y trazabilidad durante todo el proyecto. Los requisitos cambian: lo importante es gestionarlos con disciplina para no perder el control del alcance.</p>
+          <div class="artifacts"><span class="artifact">Matriz de trazabilidad</span><span class="artifact">Registro de cambios</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-tip">
+      <div class="box-title"><span class="ico">🎯</span>Recuerda</div>
+      <p>En metodologías ágiles (Scrum) estas fases ocurren en cada sprint. En metodologías predictivas (cascada) se intenta completarlas antes del diseño. En ambos casos, la gestión de cambios es inevitable.</p>
+    </div>
+
+    <div style="text-align:right;margin-top:32px">
+      <button class="btn btn-primary" onclick="showSection('tipos')">Siguiente: Tipos de requisitos →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 2: TIPOS DE REQUISITOS -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-tipos">
+    <div class="page-hero">
+      <div class="tag">Sección 2 · Clasificación</div>
+      <h2>Tipos de Requisitos</h2>
+      <p>Tres categorías que debes dominar para no dejar nada fuera de la especificación.</p>
+    </div>
+
+    <div class="compare-3">
+      <div class="compare-card rf">
+        <span class="key">RF</span>
+        <h4>Requisitos Funcionales</h4>
+        <p>Describen <strong>QUÉ debe hacer</strong> el sistema: las funciones, servicios y comportamientos que el usuario puede usar directamente.</p>
+      </div>
+      <div class="compare-card rnf">
+        <span class="key">RNF</span>
+        <h4>Requisitos No Funcionales</h4>
+        <p>Describen <strong>CÓMO debe ser</strong> el sistema: rendimiento, seguridad, usabilidad, disponibilidad y otras propiedades de calidad.</p>
+      </div>
+      <div class="compare-card rad">
+        <span class="key">RAD</span>
+        <h4>Requisitos de Almacenamiento</h4>
+        <p>Describen <strong>QUÉ información</strong> debe guardar el sistema: entidades, atributos, relaciones y restricciones de integridad.</p>
+      </div>
+    </div>
+
+    <h2 class="section-h">📗 Requisitos Funcionales (RF)</h2>
+
+    <div class="box box-def">
+      <div class="box-title">📌 Clave de redacción</div>
+      <p>Todo RF debe redactarse con <strong>verbo en modo imperativo</strong>: «El sistema <u>debe</u> permitir...», «El sistema <u>generará</u>...», «El sistema <u>enviará</u>...». Sin el verbo imperativo, no es un requisito, es un deseo.</p>
+    </div>
+
+    <h3 class="sub-h"><div class="dot"></div>Características de un buen RF</h3>
+    <div class="cards">
+      <div class="card"><div class="card-icon">✍️</div><h4>Verbo imperativo</h4><p>«Debe», «permitirá», «generará». Indica obligación, no posibilidad.</p></div>
+      <div class="card"><div class="card-icon">🎯</div><h4>Sujeto claro</h4><p>¿Quién actúa (actor) y sobre qué (entidad)? «El <em>administrador</em> gestiona <em>usuarios</em>».</p></div>
+      <div class="card"><div class="card-icon">🔬</div><h4>Verificable</h4><p>Debe existir al menos una prueba que confirme si está implementado.</p></div>
+      <div class="card"><div class="card-icon">🚫</div><h4>Sin ambigüedad</h4><p>Evita «varios», «algunos», «adecuado», «rápido». Usa números y condiciones concretas.</p></div>
+    </div>
+
+    <h3 class="sub-h"><div class="dot"></div>Ejemplos de RF bien redactados</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Requisito Funcional</th><th>¿Por qué es bueno?</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge-rf">RF-001</span></td><td>El sistema <strong>debe permitir</strong> al cliente registrar una cita indicando fecha, hora, servicio y estilista preferido.</td><td>Verbo imperativo, actor definido (cliente), datos específicos.</td></tr>
+          <tr><td><span class="badge-rf">RF-002</span></td><td>El sistema <strong>debe enviar</strong> una notificación por correo electrónico al cliente 24 horas antes de su cita.</td><td>Canal concreto (correo), tiempo exacto (24 h).</td></tr>
+          <tr><td><span class="badge-rf">RF-003</span></td><td>El sistema <strong>debe calcular</strong> automáticamente el descuento aplicable según la categoría del cliente (regular: 0%, frecuente: 10%, VIP: 20%).</td><td>Regla de negocio explícita con valores concretos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-warn">
+      <div class="box-title"><span class="ico">❌</span>Requisito mal redactado vs bien redactado</div>
+      <p><strong>MAL:</strong> «El sistema debe ser amigable con el usuario.» — ¿Qué significa amigable? No se puede probar.<br><strong>BIEN:</strong> «Un usuario sin entrenamiento previo debe poder registrar una venta en no más de 3 pasos y en menos de 90 segundos.»</p>
+    </div>
+
+    <h2 class="section-h">🔴 Requisitos No Funcionales (RNF)</h2>
+    <p>Los RNF definen la <span class="tip" data-tip="Calidad del software según ISO/IEC 25010: conjunto de propiedades que determinan qué tan bien un sistema satisface necesidades explícitas e implícitas.">calidad del software</span>. Un sistema puede tener todos los RF implementados y ser inutilizable por ser lento, inseguro o difícil de usar.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Categoría</th><th>Descripción</th><th>Ejemplo de RNF</th></tr></thead>
+        <tbody>
+          <tr><td>⚡ Rendimiento</td><td>Tiempos de respuesta, capacidad de carga.</td><td>El sistema debe responder en < 2 segundos con 50 usuarios simultáneos.</td></tr>
+          <tr><td>🔐 Seguridad</td><td>Autenticación, autorización, cifrado.</td><td>Las contraseñas se almacenarán con hash bcrypt (costo mínimo 12).</td></tr>
+          <tr><td>👆 Usabilidad</td><td>Facilidad de aprendizaje y uso.</td><td>Un cajero nuevo debe poder registrar una venta sin capacitación en < 90 seg.</td></tr>
+          <tr><td>🟢 Disponibilidad</td><td>Tiempo en línea, tolerancia a fallos.</td><td>El sistema estará disponible 99,5% del tiempo en horario laboral.</td></tr>
+          <tr><td>📈 Escalabilidad</td><td>Capacidad de crecer sin rediseño.</td><td>La arquitectura soportará crecimiento de 50 a 500 usuarios sin cambios en BD.</td></tr>
+          <tr><td>🔧 Mantenibilidad</td><td>Facilidad para corregir y evolucionar.</td><td>Cobertura mínima de pruebas unitarias: 80%.</td></tr>
+          <tr><td>📱 Portabilidad</td><td>Compatibilidad con entornos distintos.</td><td>La app web debe funcionar en Chrome, Firefox y Safari últimas versiones.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-h">💾 Requisitos de Almacenamiento de Datos (RAD)</h2>
+    <p>Los RAD especifican la información que el sistema debe <span class="tip" data-tip="Persistir: guardar de forma permanente en una base de datos o almacenamiento, de modo que los datos sobrevivan al reinicio del sistema.">persistir</span>. Forman la base para diseñar el modelo de datos (diagrama ER).</p>
+
+    <h3 class="sub-h"><div class="dot"></div>Elementos de un RAD completo</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Elemento</th><th>Descripción</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td>Entidad</td><td>Objeto del negocio sobre el que se guarda información.</td><td>Cliente, Producto, Factura, Cita</td></tr>
+          <tr><td>Atributos</td><td>Propiedades o campos de cada entidad.</td><td>Cliente: id, nombre, teléfono, correo, tipo</td></tr>
+          <tr><td>Restricciones de integridad</td><td>Reglas que deben cumplirse sobre los datos.</td><td>Una cita no puede existir sin un cliente asociado (FK NOT NULL)</td></tr>
+          <tr><td>Volumen estimado</td><td>Cantidad de registros esperados en 1 año.</td><td>~6.000 transacciones anuales; ~500 clientes nuevos</td></tr>
+          <tr><td>Retención y auditoría</td><td>Tiempo de conservación de los datos.</td><td>Facturas: mínimo 5 años (normativa DIAN Colombia)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-h"><div class="dot"></div>Ejemplo de RAD redactado</h3>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>RAD-001 | Entidad: Cliente
+Atributos: id (PK, autoincremental), nombre (VARCHAR 100, NOT NULL),
+           teléfono (VARCHAR 15), correo (VARCHAR 120, UNIQUE),
+           tipo (ENUM: 'regular','frecuente','VIP', DEFAULT 'regular'),
+           fecha_registro (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
+Restricciones: correo debe ser único en el sistema.
+Volumen estimado: 800 registros en el primer año.
+Retención: indefinida mientras sea cliente activo.</pre>
+    </div>
+
+    <h3 class="sub-h"><div class="dot"></div>¿Cómo diferenciarlos rápidamente?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Criterio</th><th>RF</th><th>RNF</th><th>RAD</th></tr></thead>
+        <tbody>
+          <tr><td>Pregunta guía</td><td>¿Qué <em>hace</em> el sistema?</td><td>¿Cómo <em>es</em> el sistema?</td><td>¿Qué <em>guarda</em> el sistema?</td></tr>
+          <tr><td>Se prueba con</td><td>Caso de prueba funcional</td><td>Prueba de rendimiento / seguridad</td><td>Revisión del modelo de datos</td></tr>
+          <tr><td>Ejemplo corto</td><td>«Debe registrar ventas»</td><td>«Responde en &lt; 2 s»</td><td>«Guarda fecha y hora de cada venta»</td></tr>
+          <tr><td>Cambia con frecuencia</td><td>Sí</td><td>Menos frecuente</td><td>Moderadamente</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="text-align:right;margin-top:32px">
+      <button class="btn btn-primary" onclick="showSection('elicitacion')">Siguiente: Técnicas y entrevistas →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 3: TÉCNICAS Y ENTREVISTAS -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-elicitacion">
+    <div class="page-hero">
+      <div class="tag">Sección 3 · Elicitación</div>
+      <h2>Técnicas y Diseño de Entrevistas</h2>
+      <p>La elicitación es el arte de sacar a la luz lo que el cliente necesita, incluso cuando él mismo no lo sabe expresar.</p>
+    </div>
+
+    <h2 class="section-h">Técnicas de elicitación</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Técnica</th><th>Descripción</th><th>Cuándo usarla</th></tr></thead>
+        <tbody>
+          <tr><td>🎤 Entrevista</td><td>Conversación estructurada o libre con stakeholders clave.</td><td>Siempre; es la técnica base de la IR.</td></tr>
+          <tr><td>👥 Taller JAD</td><td>Sesión grupal con todos los actores facilitada por el analista.</td><td>Proyectos con múltiples stakeholders o conflictos.</td></tr>
+          <tr><td>👁️ Observación</td><td>El analista acompaña al usuario en su trabajo real (shadowing).</td><td>Cuando el usuario no sabe describir su proceso.</td></tr>
+          <tr><td>📄 Análisis de documentos</td><td>Revisar manuales, formatos actuales, reportes existentes.</td><td>Sistemas de reemplazo o migración.</td></tr>
+          <tr><td>🖼️ Prototipado</td><td>Crear maquetas o wireframes para validar con el usuario.</td><td>Interfaces complejas o nuevas.</td></tr>
+          <tr><td>📝 Encuestas</td><td>Formularios para recopilar datos de muchos usuarios.</td><td>Proyectos con usuarios finales dispersos.</td></tr>
+          <tr><td>💭 Brainstorming</td><td>Generación libre de ideas en grupo.</td><td>Etapas iniciales de definición del alcance.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-h">Tipos de entrevista</h2>
+    <p>La entrevista es la técnica más usada porque permite explorar en profundidad. Existen tres tipos según su estructura:</p>
+
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-btn active" onclick="showTab(this,'tab-abierta')">🔓 Entrevista Abierta</button>
+        <button class="tab-btn" onclick="showTab(this,'tab-cerrada')">🔒 Entrevista Cerrada</button>
+        <button class="tab-btn" onclick="showTab(this,'tab-hibrida')">🔀 Entrevista Híbrida</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-abierta">
+        <h3 class="sub-h" style="margin-top:0"><div class="dot"></div>Entrevista Abierta</h3>
+        <p>Usa preguntas no estructuradas que invitan al entrevistado a hablar libremente. Ideal para la <strong>exploración inicial</strong> cuando no conoces el dominio del negocio. El analista escucha activamente y profundiza con preguntas de seguimiento.</p>
+        <div class="box box-tip"><div class="box-title">✅ Cuándo usarla</div><p>Al inicio del proyecto, cuando quieres entender el contexto sin sesgos. También cuando el cliente tiene dificultad para describir su problema.</p></div>
+        <h4 class="mini-h">Guía de entrevista abierta — Exploración inicial</h4>
+        <ul class="q-list q-open">
+          <li><div class="qnum">1</div>¿Podría describirme con sus propias palabras cuál es el propósito principal de su negocio o área de trabajo?</li>
+          <li><div class="qnum">2</div>¿Cuáles son las actividades del día a día que más tiempo le consumen y que considera fundamentales?</li>
+          <li><div class="qnum">3</div>¿Qué problemas o frustraciones experimenta actualmente en esas actividades?</li>
+          <li><div class="qnum">4</div>¿Cómo resuelve hoy esos problemas? (herramientas, personas, procesos actuales)</li>
+          <li><div class="qnum">5</div>¿Qué pasaría si esos problemas se resolvieran? ¿Qué cambiaría en su trabajo?</li>
+          <li><div class="qnum">6</div>¿Hay algo que sus clientes o jefes le piden con frecuencia y que usted no puede satisfacer hoy?</li>
+          <li><div class="qnum">7</div>¿Cómo imagina que debería funcionar un sistema ideal para apoyar su trabajo?</li>
+          <li><div class="qnum">8</div>¿Hay otras personas en su equipo que deberían participar en estas conversaciones?</li>
+        </ul>
+      </div>
+
+      <div class="tab-panel" id="tab-cerrada">
+        <h3 class="sub-h" style="margin-top:0"><div class="dot"></div>Entrevista Cerrada</h3>
+        <p>Usa preguntas con respuestas predefinidas (sí/no, selección múltiple, escalas de Likert). Permite recolectar información <strong>estandarizada y cuantificable</strong> de múltiples personas. Útil para confirmar hallazgos.</p>
+        <div class="box box-tip"><div class="box-title">✅ Cuándo usarla</div><p>Para validar hipótesis, recopilar datos de muchos usuarios o cuando ya tienes claridad sobre los temas y quieres respuestas concretas y comparables.</p></div>
+        <h4 class="mini-h">Instrumento de entrevista cerrada — Confirmación de requisitos</h4>
+        <ul class="q-list q-closed">
+          <li><div class="qnum">1</div>¿Actualmente utiliza algún software para gestionar sus operaciones? <em>(Sí / No / Parcialmente)</em></li>
+          <li><div class="qnum">2</div>¿Qué módulos utiliza? <em>(Ventas / Inventario / Clientes / Facturación / RRHH / Otro)</em></li>
+          <li><div class="qnum">3</div>Califique del 1 al 5 la importancia de que el sistema funcione desde un dispositivo móvil. <em>(1=No importante, 5=Muy importante)</em></li>
+          <li><div class="qnum">4</div>¿Cuántos usuarios simultáneos necesitarían acceder al sistema? <em>(1-5 / 6-20 / 21-50 / Más de 50)</em></li>
+          <li><div class="qnum">5</div>¿El sistema debe integrarse con un software contable externo? <em>(Sí / No / No sabe)</em></li>
+          <li><div class="qnum">6</div>¿Con qué frecuencia necesita generar reportes de gestión? <em>(Diario / Semanal / Mensual / Bajo demanda)</em></li>
+          <li><div class="qnum">7</div>¿La empresa preferiría solución en la nube o servidor propio? <em>(Servidor propio / Nube / Indiferente)</em></li>
+          <li><div class="qnum">8</div>Califique del 1 al 5 la urgencia de implementar el sistema. <em>(1=Puede esperar, 5=Es crítico)</em></li>
+        </ul>
+      </div>
+
+      <div class="tab-panel" id="tab-hibrida">
+        <h3 class="sub-h" style="margin-top:0"><div class="dot"></div>Entrevista Híbrida (Semiestructurada)</h3>
+        <p>Combina preguntas abiertas y cerradas. Es la <strong>más recomendada en proyectos de software</strong> porque obtiene tanto datos cuantitativos como narrativas ricas. El analista sigue una guía flexible que adapta según el flujo de la conversación.</p>
+        <div class="box box-tip"><div class="box-title">✅ Cuándo usarla</div><p>Para el levantamiento completo de requisitos. Una sesión bien conducida puede cubrir toda la información necesaria para el inventario inicial.</p></div>
+        <h4 class="mini-h">Guía de entrevista híbrida — Levantamiento completo</h4>
+        <ul class="q-list q-hybrid">
+          <li><div class="qnum">1</div><span class="q-type qt-a">Abierta</span>Cuénteme su rol dentro de la empresa y qué decisiones toma a diario relacionadas con el área que queremos sistematizar.</li>
+          <li><div class="qnum">2</div><span class="q-type qt-c">Cerrada</span>¿Cuántas personas trabajan directamente en esa área? <em>(1-3 / 4-10 / 11-30 / Más de 30)</em></li>
+          <li><div class="qnum">3</div><span class="q-type qt-a">Abierta</span>Describa el proceso completo desde que inicia una operación hasta que finaliza. ¿Qué pasos sigue hoy?</li>
+          <li><div class="qnum">4</div><span class="q-type qt-c">Cerrada</span>¿Existen documentos físicos (formatos, planillas) que actualmente se usan en ese proceso? <em>(Sí / No)</em></li>
+          <li><div class="qnum">5</div><span class="q-type qt-a">Abierta</span>¿Cuáles son los tres principales cuellos de botella o problemas en ese proceso?</li>
+          <li><div class="qnum">6</div><span class="q-type qt-c">Cerrada</span>Califique del 1 al 5 la urgencia de resolver esos problemas con un sistema. <em>(1=Puede esperar, 5=Crítico)</em></li>
+          <li><div class="qnum">7</div><span class="q-type qt-a">Abierta</span>¿Qué información necesita consultar o reportar con mayor frecuencia? ¿Con qué detalle?</li>
+          <li><div class="qnum">8</div><span class="q-type qt-c">Cerrada</span>¿Cuál es el presupuesto mensual aproximado? <em>(< $200.000 / $200.000-$500.000 / > $500.000 COP)</em></li>
+          <li><div class="qnum">9</div><span class="q-type qt-a">Abierta</span>¿Hay algo más que considere importante y que no hayamos preguntado todavía?</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="section-h">Buenas prácticas en entrevistas</h2>
+    <div class="cards">
+      <div class="card"><div class="card-icon">📚</div><h4>Prepárate</h4><p>Investiga el dominio del negocio antes de la sesión. Un analista que conoce el contexto genera confianza.</p></div>
+      <div class="card"><div class="card-icon">👂</div><h4>Escucha activa</h4><p>No interrumpas. Usa el lenguaje del cliente. Repite ideas clave para confirmar comprensión.</p></div>
+      <div class="card"><div class="card-icon">🔎</div><h4>Profundiza</h4><p>Usa: «¿Podría ampliar eso?», «¿Por qué es importante?», «¿Qué pasa si no se hace?»</p></div>
+      <div class="card"><div class="card-icon">🚫</div><h4>No sugieras</h4><p>Evita: «¿Le gustaría X?» → Usa: «¿Qué espera del sistema en ese aspecto?»</p></div>
+      <div class="card"><div class="card-icon">📝</div><h4>Documenta rápido</h4><p>Escribe el acta máximo 24 h después, mientras el contexto está fresco en tu memoria.</p></div>
+      <div class="card"><div class="card-icon">✅</div><h4>Cierra y valida</h4><p>Al finalizar, resume los puntos clave y pregunta si hay algo que agregar o corregir.</p></div>
+    </div>
+
+    <div style="text-align:right;margin-top:32px">
+      <button class="btn btn-primary" onclick="showSection('inventario')">Siguiente: Inventario de requisitos →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 4: INVENTARIO -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-inventario">
+    <div class="page-hero">
+      <div class="tag">Sección 4 · Artefacto central</div>
+      <h2>El Inventario de Requisitos</h2>
+      <p>El artefacto más importante de la IR: tu tabla de control de todo lo que el sistema debe hacer, ser y guardar.</p>
+    </div>
+
+    <h2 class="section-h">¿Qué es y para qué sirve?</h2>
+    <p>El Inventario de Requisitos (también llamado <span class="tip" data-tip="En Scrum, el Product Backlog es la lista priorizada de todo lo que el producto necesita. El inventario de requisitos es su equivalente en metodologías más formales.">Registro de Requisitos o Product Backlog</span>) es la tabla que consolida <em>todos</em> los requisitos descubiertos. Es tu herramienta de gestión durante todo el proyecto: permite priorizar, asignar, rastrear cambios y verificar que nada quede sin implementar.</p>
+
+    <h2 class="section-h">Campos del inventario</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Descripción</th><th>Valores / Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td>ID</td><td>Identificador único del requisito.</td><td>RF-001, RNF-003, RAD-002</td></tr>
+          <tr><td>Tipo</td><td>Clasificación del requisito.</td><td>RF / RNF / RAD</td></tr>
+          <tr><td>Nombre</td><td>Título corto (máx. 5 palabras).</td><td>«Registro de citas», «Control de sesión»</td></tr>
+          <tr><td>Descripción</td><td>Enunciado completo, preciso y verificable.</td><td>«El sistema debe permitir...»</td></tr>
+          <tr><td>Prioridad</td><td>Importancia para el negocio.</td><td><span class="badge-a">ALTA</span> <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:.72rem;font-weight:700">MEDIA</span> <span class="badge-b">BAJA</span></td></tr>
+          <tr><td>Fuente</td><td>Stakeholder que lo originó.</td><td>Gerente, Cajero, Entrevista 1</td></tr>
+          <tr><td>Estado</td><td>Ciclo de vida del requisito.</td><td>Propuesto / Aprobado / Implementado</td></tr>
+          <tr><td>Criterio de aceptación</td><td>Condición que verifica su cumplimiento.</td><td>«Sistema registra cita y muestra confirmación.»</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-h">Inventario de ejemplo — Glamour Style (fragmento)</h2>
+    <div class="inv-table-wrap">
+      <table class="inv-table">
+        <thead><tr><th>ID</th><th>Tipo</th><th>Nombre</th><th class="desc">Descripción</th><th>Prioridad</th><th>Fuente</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>RF-001</td><td><span class="badge-rf">RF</span></td><td>Registro de cita</td><td class="desc">El sistema debe permitir crear una cita con: cliente, estilista, servicio, fecha y hora.</td><td><span class="badge-a">ALTA</span></td><td>Valentina T.</td><td>Aprobado</td></tr>
+          <tr><td>RF-002</td><td><span class="badge-rf">RF</span></td><td>Validar disponibilidad</td><td class="desc">El sistema debe impedir asignar dos citas al mismo tiempo a la misma estilista.</td><td><span class="badge-a">ALTA</span></td><td>Valentina T.</td><td>Aprobado</td></tr>
+          <tr><td>RF-003</td><td><span class="badge-rf">RF</span></td><td>Recordatorio automático</td><td class="desc">El sistema debe enviar mensaje (WhatsApp/SMS) al cliente 2 horas antes de la cita.</td><td><span class="badge-a">ALTA</span></td><td>Valentina T.</td><td>Aprobado</td></tr>
+          <tr><td>RF-007</td><td><span class="badge-rf">RF</span></td><td>Reporte de comisiones</td><td class="desc">El sistema debe generar reporte mensual de comisiones por estilista con total y detalle.</td><td><span class="badge-a">ALTA</span></td><td>Valentina T.</td><td>Aprobado</td></tr>
+          <tr><td>RNF-001</td><td><span class="badge-rnf">RNF</span></td><td>Interfaz móvil</td><td class="desc">La app debe usarse cómodamente desde smartphone de 5.5" sin instalación.</td><td><span class="badge-a">ALTA</span></td><td>Valentina T.</td><td>Aprobado</td></tr>
+          <tr><td>RNF-002</td><td><span class="badge-rnf">RNF</span></td><td>Facilidad de uso</td><td class="desc">Registrar una cita debe ser posible en máx. 3 pasos sin capacitación previa.</td><td><span class="badge-a">ALTA</span></td><td>Valentina T.</td><td>Aprobado</td></tr>
+          <tr><td>RAD-001</td><td><span class="badge-rad">RAD</span></td><td>Entidad Cliente</td><td class="desc">id (PK), nombre, teléfono, correo, tipo (regular/VIP), fecha_registro.</td><td><span class="badge-a">ALTA</span></td><td>Analista</td><td>Aprobado</td></tr>
+          <tr><td>RAD-002</td><td><span class="badge-rad">RAD</span></td><td>Entidad Cita</td><td class="desc">id (PK), fecha_hora, id_cliente (FK), id_estilista (FK), id_servicio (FK), estado, notas.</td><td><span class="badge-a">ALTA</span></td><td>Analista</td><td>Aprobado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-h">🛠️ Construye tu propio requisito</h2>
+    <p>Usa este formulario para practicar la redacción de requisitos antes de la sesión. Puedes agregar múltiples requisitos a la tabla de práctica.</p>
+
+    <div class="template-builder">
+      <h4>Formulario de requisito</h4>
+      <div class="field-row">
+        <div><label>ID del requisito</label><input type="text" id="f-id" placeholder="RF-001"></div>
+        <div><label>Tipo</label>
+          <select id="f-tipo">
+            <option value="RF">RF — Funcional</option>
+            <option value="RNF">RNF — No Funcional</option>
+            <option value="RAD">RAD — Datos</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div><label>Nombre corto</label><input type="text" id="f-nombre" placeholder="Registro de citas"></div>
+        <div><label>Prioridad</label>
+          <select id="f-prior">
+            <option value="ALTA">ALTA</option>
+            <option value="MEDIA">MEDIA</option>
+            <option value="BAJA">BAJA</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row full"><label>Descripción completa (usa verbo imperativo)</label>
+        <textarea id="f-desc" placeholder="El sistema debe permitir..."></textarea>
+      </div>
+      <div class="field-row">
+        <div><label>Fuente (stakeholder)</label><input type="text" id="f-fuente" placeholder="Gerente"></div>
+        <div><label>Estado</label>
+          <select id="f-estado">
+            <option value="Propuesto">Propuesto</option>
+            <option value="Aprobado">Aprobado</option>
+            <option value="Implementado">Implementado</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="addReq()">+ Agregar al inventario</button>
+        <button class="btn btn-secondary" onclick="clearForm()">Limpiar</button>
+        <button class="btn btn-navy" onclick="exportInv()">⬇ Exportar CSV</button>
+      </div>
+    </div>
+
+    <h4 class="mini-h" style="margin-top:24px">Tu inventario de práctica:</h4>
+    <div id="inv-preview"><p class="placeholder">Agrega requisitos usando el formulario de arriba ↑</p></div>
+
+    <h2 class="section-h">Artefactos complementarios</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">👥</div>
+        <h4>Ficha de Stakeholder</h4>
+        <p>Registra: nombre, rol, tipo, interés, influencia (A/M/B), disponibilidad y canal preferido.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📖</div>
+        <h4>Glosario del Proyecto</h4>
+        <p>Define términos del dominio del negocio que puedan ser ambiguos para el equipo técnico.</p>
+      </div>
+      <div class="card highlight">
+        <div class="card-icon">🔗</div>
+        <h4>Matriz de Trazabilidad</h4>
+        <p>Relaciona cada requisito con el módulo, historia de usuario y caso de prueba que lo implementa.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏷️</div>
+        <h4>Modelo MoSCoW</h4>
+        <p><strong>M</strong>ust Have · <strong>S</strong>hould Have · <strong>C</strong>ould Have · <strong>W</strong>on't Have (primera versión).</p>
+      </div>
+    </div>
+
+    <div style="text-align:right;margin-top:32px">
+      <button class="btn btn-primary" onclick="showSection('proyectos')">Siguiente: Mini-proyectos →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 5: MINI-PROYECTOS -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-proyectos">
+    <div class="page-hero">
+      <div class="tag">Sección 5 · Casos de estudio</div>
+      <h2>5 Mini-Proyectos Resueltos</h2>
+      <p>Cinco casos reales del entorno productivo colombiano con elicitación completa e inventarios de requisitos para que estudies el proceso paso a paso.</p>
+    </div>
+
+    <div class="box box-tip">
+      <div class="box-title"><span class="ico">📌</span>Cómo usar esta sección</div>
+      <p>Expande cada mini-proyecto, lee el contexto y luego intenta completar el inventario por tu cuenta <em>antes</em> de ver la solución. El aprendizaje es mayor cuando intentas primero.</p>
+    </div>
+
+    <div class="accordion" id="acc-main">
+
+      <!-- MP1 -->
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">
+            <div class="acc-num">1</div>
+            💇 Salón de Belleza "Glamour Style" — Itagüí
+          </div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-meta">
+            <span class="acc-tag dom">Servicios personales</span>
+            <span class="acc-tag dur">45–60 min</span>
+            <span class="acc-tag sk">6 stakeholders</span>
+          </div>
+          <p><strong>Contexto:</strong> Valentina Torres, propietaria de "Glamour Style" (6 estilistas, Itagüí), gestiona citas por WhatsApp y agenda física. Problemas: cruces de citas 2–3 veces/semana, 20% de ausentismo de clientes por falta de recordatorios, errores en cálculo de comisiones de empleadas.</p>
+          <p><strong>Necesidad central:</strong> Sistema desde celular, sin capacitación técnica avanzada, que organice la agenda, envíe recordatorios y calcule comisiones automáticamente.</p>
+          <h4 class="mini-h">Inventario de requisitos — fragmento representativo</h4>
+          <div class="inv-table-wrap">
+            <table class="inv-table">
+              <thead><tr><th>ID</th><th>Tipo</th><th>Nombre</th><th class="desc">Descripción</th><th>Prior.</th></tr></thead>
+              <tbody>
+                <tr><td>RF-001</td><td><span class="badge-rf">RF</span></td><td>Registro de cita</td><td class="desc">El sistema debe permitir crear cita con: cliente, estilista, servicio, fecha y hora.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-002</td><td><span class="badge-rf">RF</span></td><td>Validar disponibilidad</td><td class="desc">Impedir asignar dos citas a la misma estilista en el mismo horario.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-003</td><td><span class="badge-rf">RF</span></td><td>Recordatorio automático</td><td class="desc">Enviar mensaje (WhatsApp/SMS) al cliente 2 horas antes de la cita.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-007</td><td><span class="badge-rf">RF</span></td><td>Reporte comisiones</td><td class="desc">Generar reporte mensual de comisiones por estilista (total + detalle por servicio).</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-001</td><td><span class="badge-rnf">RNF</span></td><td>App móvil</td><td class="desc">La aplicación debe usarse desde smartphone sin instalación (web app responsive).</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-002</td><td><span class="badge-rnf">RNF</span></td><td>Facilidad de uso</td><td class="desc">Registrar una cita en máx. 3 pasos sin capacitación previa.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RAD-001</td><td><span class="badge-rad">RAD</span></td><td>Entidad Cliente</td><td class="desc">id, nombre, teléfono, correo, tipo (regular/VIP), fecha_registro.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RAD-004</td><td><span class="badge-rad">RAD</span></td><td>Entidad Cita</td><td class="desc">id, fecha_hora, id_cliente (FK), id_estilista (FK), id_servicio (FK), estado, notas.</td><td><span class="badge-a">ALTA</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="box box-info" style="margin-top:16px"><div class="box-title">💡 Para el ejercicio</div><p>El inventario completo (19 requisitos) está en la Guía de Aprendizaje GFPI-F-135. Aquí tienes los más representativos para estudiar la estructura.</p></div>
+        </div>
+      </div>
+
+      <!-- MP2 -->
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><div class="acc-num">2</div>👟 Tienda de Calzado "Paso Firme" — Medellín</div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-meta">
+            <span class="acc-tag dom">Comercio / manufactura artesanal</span>
+            <span class="acc-tag dur">45–60 min</span>
+            <span class="acc-tag sk">4 stakeholders</span>
+          </div>
+          <p><strong>Contexto:</strong> Hernán Gutiérrez fabrica y vende zapatos en cuero (12 referencias, tallas 35–46). Excel compartido desactualizado genera ventas de pares sin existencia y pedidos equivocados al curtiembre.</p>
+          <p><strong>Necesidad central:</strong> Control de inventario en tiempo real, alertas de stock mínimo y ranking de ventas por talla para optimizar producción.</p>
+          <h4 class="mini-h">Requisitos clave identificados</h4>
+          <div class="inv-table-wrap">
+            <table class="inv-table">
+              <thead><tr><th>ID</th><th>Tipo</th><th>Nombre</th><th class="desc">Descripción</th><th>Prior.</th></tr></thead>
+              <tbody>
+                <tr><td>RF-001</td><td><span class="badge-rf">RF</span></td><td>Registro de producto</td><td class="desc">Crear productos con: referencia, nombre, talla, color, precio y stock inicial.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-002</td><td><span class="badge-rf">RF</span></td><td>Descontar en venta</td><td class="desc">Al registrar una venta, descontar del stock automáticamente por talla y referencia.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-003</td><td><span class="badge-rf">RF</span></td><td>Alerta stock mínimo</td><td class="desc">Generar alerta visual cuando el stock de un ítem baje del mínimo configurado.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-005</td><td><span class="badge-rf">RF</span></td><td>Ranking ventas por talla</td><td class="desc">Mostrar ranking mensual de tallas y referencias más vendidas.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-001</td><td><span class="badge-rnf">RNF</span></td><td>Tiempo real</td><td class="desc">Cambios de inventario visibles para todos los usuarios en menos de 5 segundos.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RAD-002</td><td><span class="badge-rad">RAD</span></td><td>Ítem de inventario</td><td class="desc">id, id_producto (FK), talla, color, stock_actual, stock_minimo.</td><td><span class="badge-a">ALTA</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MP3 -->
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><div class="acc-num">3</div>🏥 IPS "Salud Integral Antioquia"</div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-meta">
+            <span class="acc-tag dom">Salud / sector regulado</span>
+            <span class="acc-tag dur">45–60 min</span>
+            <span class="acc-tag sk">5 stakeholders + Supersalud</span>
+          </div>
+          <p><strong>Contexto:</strong> IPS con 4 médicos generales, odontología y nutrición. Filas físicas desde las 5 a.m., Excel que se corrompe, médicos sin acceso a historia clínica antes de la consulta.</p>
+          <p><strong>Restricción normativa crítica:</strong> <span class="tip" data-tip="Resolución 1995 de 1999 — Ministerio de Salud Colombia: establece los campos mínimos obligatorios de la historia clínica y los requisitos de seguridad y confidencialidad.">Resolución 1995 de 1999</span> regula los campos mínimos de la historia clínica electrónica. Incumplirla puede generar sanciones a la IPS.</p>
+          <div class="box box-warn" style="margin:16px 0"><div class="box-title"><span class="ico">⚖️</span>Requisito normativo</div><p>RNF-001*: La historia clínica debe contener los campos mínimos exigidos por la Resolución 1995/1999 (identificación del paciente, motivo de consulta, diagnóstico con código CIE-10, tratamiento prescrito). Los RNF de seguridad y confidencialidad son <strong>no negociables</strong>.</p></div>
+          <div class="inv-table-wrap">
+            <table class="inv-table">
+              <thead><tr><th>ID</th><th>Tipo</th><th>Nombre</th><th class="desc">Descripción</th><th>Prior.</th></tr></thead>
+              <tbody>
+                <tr><td>RF-001</td><td><span class="badge-rf">RF</span></td><td>Turno en línea</td><td class="desc">Paciente solicita turno desde web/app seleccionando especialidad, médico y franja horaria.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-005</td><td><span class="badge-rf">RF</span></td><td>Historia clínica</td><td class="desc">Registrar: motivo, diagnóstico CIE-10, prescripción y notas del médico tratante.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-006</td><td><span class="badge-rf">RF</span></td><td>Acceso previo a HC</td><td class="desc">El médico puede consultar la historia del paciente antes de iniciar la consulta.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-001*</td><td><span class="badge-rnf">RNF</span></td><td>Cumplimiento Res.1995</td><td class="desc">La HC debe contener todos los campos mínimos exigidos por la Resolución 1995/1999.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-002*</td><td><span class="badge-rnf">RNF</span></td><td>Confidencialidad HC</td><td class="desc">Solo el médico tratante y la dirección pueden acceder a la HC del paciente.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RAD-004</td><td><span class="badge-rad">RAD</span></td><td>Historia Clínica</td><td class="desc">id, id_turno (FK), id_paciente (FK), id_médico (FK), fecha, motivo, diagnóstico_CIE10, tratamiento.</td><td><span class="badge-a">ALTA</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MP4 -->
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><div class="acc-num">4</div>🔧 Préstamo de Herramientas — SENA CDMC</div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-meta">
+            <span class="acc-tag dom">Educativo (¡tu entorno!)</span>
+            <span class="acc-tag dur">45–60 min</span>
+            <span class="acc-tag sk">5 stakeholders internos</span>
+          </div>
+          <div class="box box-tip" style="margin-bottom:16px"><div class="box-title">🏫 Este es tu entorno real</div><p>Como aprendiz del CDMC, conoces este sistema de primera mano. Usa ese conocimiento para enriquecer los requisitos con detalles que solo alguien que vive el proceso puede aportar.</p></div>
+          <p><strong>Contexto:</strong> Almacén del CDMC presta troqueles, máquinas de coser y herramientas de guarnecido a aprendices. Control actual: cuaderno físico. Problema: herramientas perdidas sin trazabilidad, aprendices con múltiples deudas activas.</p>
+          <div class="inv-table-wrap">
+            <table class="inv-table">
+              <thead><tr><th>ID</th><th>Tipo</th><th>Nombre</th><th class="desc">Descripción</th><th>Prior.</th></tr></thead>
+              <tbody>
+                <tr><td>RF-002</td><td><span class="badge-rf">RF</span></td><td>Registro de préstamo</td><td class="desc">Registrar préstamo: aprendiz, herramienta, cantidad, fecha/hora, ficha del aprendiz.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-003</td><td><span class="badge-rf">RF</span></td><td>Registro de devolución</td><td class="desc">Marcar devolución con estado: buenas condiciones / dañado / pérdida.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-008</td><td><span class="badge-rf">RF</span></td><td>Bloqueo por deuda</td><td class="desc">No permitir nuevo préstamo a aprendiz con herramientas no devueltas o reportadas como perdidas.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-003</td><td><span class="badge-rnf">RNF</span></td><td>Log de auditoría</td><td class="desc">Toda acción (préstamo, devolución, bloqueo) debe registrar usuario, fecha y hora en un log de auditoría.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RAD-003</td><td><span class="badge-rad">RAD</span></td><td>Entidad Préstamo</td><td class="desc">id, id_herramienta (FK), id_aprendiz (FK), fecha_prestamo, fecha_limite, fecha_devolucion, estado_devolucion.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RAD-004</td><td><span class="badge-rad">RAD</span></td><td>Log de Auditoría</td><td class="desc">id, tabla_afectada, id_registro, accion, id_usuario (FK), fecha_hora, ip_origen.</td><td><span class="badge-a">ALTA</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MP5 -->
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><div class="acc-num">5</div>🍞 Panadería "El Buen Pan de Antioquia" — Laureles</div>
+          <span class="acc-arrow">▼</span>
+        </div>
+        <div class="acc-body">
+          <div class="acc-meta">
+            <span class="acc-tag dom">Alimentario / delivery</span>
+            <span class="acc-tag dur">45–60 min</span>
+            <span class="acc-tag sk">5 stakeholders</span>
+          </div>
+          <p><strong>Contexto:</strong> Doña Amparo Cardona, 22 años de panadería en Laureles. 3 panaderos, 2 vendedoras, 3 domiciliarios. Pedidos por WhatsApp son caóticos: domiciliarios sin información completa, panaderos sin datos de producción anticipados.</p>
+          <p><strong>Reto especial:</strong> Tres tipos de usuario muy diferentes (panadero: producción; domiciliario: movilidad con tecnología básica; cliente: facilidad de pedido) con requisitos de usabilidad distintos y potenciales conflictos entre ellos.</p>
+          <div class="box box-warn" style="margin:16px 0"><div class="box-title"><span class="ico">⚡</span>Conflicto de requisitos a resolver</div><p><strong>Conflicto:</strong> El panadero necesita ver TODOS los pedidos para planificar producción. La privacidad del cliente exige que el domiciliario vea SOLO los datos de su entrega.<br><strong>Solución:</strong> Dos vistas diferenciadas por rol: «Vista producción» (solo cantidades de ítems, sin datos del cliente) y «Vista domicilio» (datos completos solo para el domiciliario asignado).</p></div>
+          <div class="inv-table-wrap">
+            <table class="inv-table">
+              <thead><tr><th>ID</th><th>Tipo</th><th>Nombre</th><th class="desc">Descripción</th><th>Prior.</th></tr></thead>
+              <tbody>
+                <tr><td>RF-004</td><td><span class="badge-rf">RF</span></td><td>Vista de producción</td><td class="desc">Panaderos ven lista consolidada de pedidos del día (qué producir y en qué cantidad). Solo cantidades, sin datos personales del cliente.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-006</td><td><span class="badge-rf">RF</span></td><td>App domiciliario</td><td class="desc">Domiciliario recibe en su celular: dirección, mapa, productos del pedido y teléfono del cliente.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RF-007</td><td><span class="badge-rf">RF</span></td><td>Seguimiento de estados</td><td class="desc">Pedido transita por estados: Recibido → En preparación → Listo → En camino → Entregado.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-001</td><td><span class="badge-rnf">RNF</span></td><td>Notificación en tiempo real</td><td class="desc">Panaderos y domiciliarios reciben nuevo pedido en menos de 10 segundos.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RNF-004</td><td><span class="badge-rnf">RNF</span></td><td>Usabilidad domiciliario</td><td class="desc">La app del domiciliario debe tener tipografía mínima 18pt, íconos grandes y no más de 2 taps para ver la dirección de entrega.</td><td><span class="badge-a">ALTA</span></td></tr>
+                <tr><td>RAD-003</td><td><span class="badge-rad">RAD</span></td><td>Entidad Pedido</td><td class="desc">id, id_cliente (FK), fecha_hora, estado, dirección_entrega, id_domiciliario (FK), total, observaciones.</td><td><span class="badge-a">ALTA</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /accordion -->
+
+    <div style="text-align:right;margin-top:32px">
+      <button class="btn btn-primary" onclick="showSection('quiz')">Siguiente: Autoevaluación →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 6: QUIZ -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-quiz">
+    <div class="page-hero">
+      <div class="tag">Sección 6 · Autoevaluación</div>
+      <h2>Quiz de Autoevaluación</h2>
+      <p>10 preguntas para verificar tu comprensión antes de la sesión. Recibirás retroalimentación inmediata en cada respuesta.</p>
+    </div>
+
+    <div id="quiz-container">
+
+      <div class="quiz-card" data-q="0">
+        <div class="q-num">Pregunta 1 de 10</div>
+        <div class="q-text">¿Cuál de las siguientes opciones es un REQUISITO FUNCIONAL correctamente redactado?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,0,false)"><span class="opt-letter">A</span>El sistema debe ser rápido y eficiente.</button>
+          <button class="opt" onclick="answerQ(this,0,true)"><span class="opt-letter">B</span>El sistema debe permitir al administrador generar un reporte de ventas filtrable por fecha y categoría.</button>
+          <button class="opt" onclick="answerQ(this,0,false)"><span class="opt-letter">C</span>El sistema necesita una buena interfaz de usuario.</button>
+          <button class="opt" onclick="answerQ(this,0,false)"><span class="opt-letter">D</span>El cliente quiere ver sus estadísticas.</button>
+        </div>
+        <div class="feedback" id="fb-0"></div>
+      </div>
+
+      <div class="quiz-card" data-q="1">
+        <div class="q-num">Pregunta 2 de 10</div>
+        <div class="q-text">Valentina dice: "Quiero saber cuánto gana cada estilista al mes sin hacer cuentas a mano". Esto es una…</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,1,false)"><span class="opt-letter">A</span>Requisito Funcional</button>
+          <button class="opt" onclick="answerQ(this,1,false)"><span class="opt-letter">B</span>Requisito No Funcional</button>
+          <button class="opt" onclick="answerQ(this,1,true)"><span class="opt-letter">C</span>Necesidad del cliente</button>
+          <button class="opt" onclick="answerQ(this,1,false)"><span class="opt-letter">D</span>Requisito de Almacenamiento</button>
+        </div>
+        <div class="feedback" id="fb-1"></div>
+      </div>
+
+      <div class="quiz-card" data-q="2">
+        <div class="q-num">Pregunta 3 de 10</div>
+        <div class="q-text">"El sistema debe responder a cualquier consulta en menos de 2 segundos con 50 usuarios conectados simultáneamente." ¿Qué tipo de requisito es este?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,2,false)"><span class="opt-letter">A</span>Requisito Funcional (RF)</button>
+          <button class="opt" onclick="answerQ(this,2,true)"><span class="opt-letter">B</span>Requisito No Funcional de Rendimiento</button>
+          <button class="opt" onclick="answerQ(this,2,false)"><span class="opt-letter">C</span>Requisito de Almacenamiento (RAD)</button>
+          <button class="opt" onclick="answerQ(this,2,false)"><span class="opt-letter">D</span>Restricción de integridad</button>
+        </div>
+        <div class="feedback" id="fb-2"></div>
+      </div>
+
+      <div class="quiz-card" data-q="3">
+        <div class="q-num">Pregunta 4 de 10</div>
+        <div class="q-text">¿Cuál es la técnica de elicitación más adecuada cuando el usuario tiene dificultad para describir verbalmente su proceso de trabajo?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,3,false)"><span class="opt-letter">A</span>Encuesta en línea</button>
+          <button class="opt" onclick="answerQ(this,3,false)"><span class="opt-letter">B</span>Entrevista cerrada</button>
+          <button class="opt" onclick="answerQ(this,3,true)"><span class="opt-letter">C</span>Observación (shadowing)</button>
+          <button class="opt" onclick="answerQ(this,3,false)"><span class="opt-letter">D</span>Análisis de documentos</button>
+        </div>
+        <div class="feedback" id="fb-3"></div>
+      </div>
+
+      <div class="quiz-card" data-q="4">
+        <div class="q-num">Pregunta 5 de 10</div>
+        <div class="q-text">¿Qué diferencia fundamental hay entre una entrevista ABIERTA y una CERRADA?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,4,false)"><span class="opt-letter">A</span>La abierta es más corta; la cerrada más larga.</button>
+          <button class="opt" onclick="answerQ(this,4,true)"><span class="opt-letter">B</span>La abierta usa preguntas libres que invitan a narrar; la cerrada tiene opciones predefinidas.</button>
+          <button class="opt" onclick="answerQ(this,4,false)"><span class="opt-letter">C</span>La abierta es para clientes nuevos; la cerrada para clientes experimentados.</button>
+          <button class="opt" onclick="answerQ(this,4,false)"><span class="opt-letter">D</span>No hay diferencia real; ambas obtienen el mismo tipo de información.</button>
+        </div>
+        <div class="feedback" id="fb-4"></div>
+      </div>
+
+      <div class="quiz-card" data-q="5">
+        <div class="q-num">Pregunta 6 de 10</div>
+        <div class="q-text">En el inventario de requisitos, ¿para qué sirve el campo "Criterio de Aceptación"?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,5,false)"><span class="opt-letter">A</span>Para indicar quién aprobó el requisito políticamente.</button>
+          <button class="opt" onclick="answerQ(this,5,false)"><span class="opt-letter">B</span>Para describir el requisito con más detalle.</button>
+          <button class="opt" onclick="answerQ(this,5,true)"><span class="opt-letter">C</span>Para definir la condición verificable que confirma que el requisito fue implementado correctamente.</button>
+          <button class="opt" onclick="answerQ(this,5,false)"><span class="opt-letter">D</span>Para asignar el costo de desarrollo del requisito.</button>
+        </div>
+        <div class="feedback" id="fb-5"></div>
+      </div>
+
+      <div class="quiz-card" data-q="6">
+        <div class="q-num">Pregunta 7 de 10</div>
+        <div class="q-text">Un RAD para la entidad "Producto" en la tienda Paso Firme debe incluir el atributo "talla". ¿Qué restricción de integridad tendría sentido agregar?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,6,false)"><span class="opt-letter">A</span>Talla debe ser un número positivo de máximo 3 dígitos (sin restricciones adicionales).</button>
+          <button class="opt" onclick="answerQ(this,6,true)"><span class="opt-letter">B</span>Talla debe estar en el rango 35–46 (CHECK constraint) y ser NOT NULL.</button>
+          <button class="opt" onclick="answerQ(this,6,false)"><span class="opt-letter">C</span>Talla puede ser NULL si el producto no tiene talla asignada aún.</button>
+          <button class="opt" onclick="answerQ(this,6,false)"><span class="opt-letter">D</span>Talla no es un atributo relevante para el RAD; solo importa para el RF.</button>
+        </div>
+        <div class="feedback" id="fb-6"></div>
+      </div>
+
+      <div class="quiz-card" data-q="7">
+        <div class="q-num">Pregunta 8 de 10</div>
+        <div class="q-text">En el modelo MoSCoW, ¿qué categoría corresponde a un requisito que es importante pero que puede diferirse a la segunda versión del sistema?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,7,false)"><span class="opt-letter">A</span>Must Have</button>
+          <button class="opt" onclick="answerQ(this,7,true)"><span class="opt-letter">B</span>Should Have</button>
+          <button class="opt" onclick="answerQ(this,7,false)"><span class="opt-letter">C</span>Could Have</button>
+          <button class="opt" onclick="answerQ(this,7,false)"><span class="opt-letter">D</span>Won't Have</button>
+        </div>
+        <div class="feedback" id="fb-7"></div>
+      </div>
+
+      <div class="quiz-card" data-q="8">
+        <div class="q-num">Pregunta 9 de 10</div>
+        <div class="q-text">¿Cuál es el principal riesgo de omitir los Requisitos No Funcionales en la especificación?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,8,false)"><span class="opt-letter">A</span>El sistema no tendrá base de datos.</button>
+          <button class="opt" onclick="answerQ(this,8,false)"><span class="opt-letter">B</span>No se podrán hacer entrevistas con los stakeholders.</button>
+          <button class="opt" onclick="answerQ(this,8,true)"><span class="opt-letter">C</span>El sistema puede funcionar correctamente pero ser inutilizable por ser lento, inseguro o difícil de usar.</button>
+          <button class="opt" onclick="answerQ(this,8,false)"><span class="opt-letter">D</span>Los requisitos funcionales quedarán sin implementar.</button>
+        </div>
+        <div class="feedback" id="fb-8"></div>
+      </div>
+
+      <div class="quiz-card" data-q="9">
+        <div class="q-num">Pregunta 10 de 10</div>
+        <div class="q-text">¿Cuál de las siguientes afirmaciones sobre la Ingeniería de Requisitos es CORRECTA?</div>
+        <div class="options">
+          <button class="opt" onclick="answerQ(this,9,false)"><span class="opt-letter">A</span>La IR se realiza una sola vez al inicio del proyecto y no debe modificarse.</button>
+          <button class="opt" onclick="answerQ(this,9,false)"><span class="opt-letter">B</span>Los requisitos funcionales son más importantes que los no funcionales.</button>
+          <button class="opt" onclick="answerQ(this,9,true)"><span class="opt-letter">C</span>La IR es un proceso iterativo que acompaña todo el ciclo de vida del proyecto.</button>
+          <button class="opt" onclick="answerQ(this,9,false)"><span class="opt-letter">D</span>El único artefacto necesario en la IR es el diagrama de casos de uso.</button>
+        </div>
+        <div class="feedback" id="fb-9"></div>
+      </div>
+
+    </div>
+
+    <div id="quiz-score">
+      <div class="score-big" id="score-num">0/10</div>
+      <div class="score-label">Respuestas correctas</div>
+      <div class="score-msg" id="score-msg"></div>
+      <button class="btn btn-primary" onclick="resetQuiz()" style="margin-top:20px">🔄 Intentar de nuevo</button>
+    </div>
+
+  </div><!-- /sec-quiz -->
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+// ── NAVIGATION ─────────────────────────────────────────────
+const sections = ['inicio','conceptos','tipos','elicitacion','inventario','proyectos','quiz'];
+const breadcrumbs = {
+  inicio:'Bienvenida',conceptos:'1. Conceptos Base',tipos:'2. Tipos de Requisitos',
+  elicitacion:'3. Técnicas y Entrevistas',inventario:'4. Inventario de Requisitos',
+  proyectos:'5. Mini-Proyectos',quiz:'6. Autoevaluación'
+};
+const visited = new Set();
+
+function showSection(id){
+  sections.forEach(s=>{
+    document.getElementById('sec-'+s).classList.toggle('active',s===id);
+    const nav = document.getElementById('nav-'+s);
+    if(nav) nav.querySelector('a').classList.toggle('active',s===id);
+  });
+  document.getElementById('breadcrumb-text').textContent = breadcrumbs[id]||id;
+  visited.add(id);
+  updateProgress();
+  document.getElementById('main').scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top:0,behavior:'smooth'});
+  // close sidebar on mobile
+  if(window.innerWidth<=768) document.getElementById('sidebar').classList.remove('open');
+}
+
+function updateProgress(){
+  const total = sections.length;
+  const done = visited.size;
+  document.getElementById('progress-fill').style.width = (done/total*100)+'%';
+  document.getElementById('progress-label').textContent = done+' / '+total+' secciones';
+  sections.forEach(s=>{
+    const li = document.getElementById('nav-'+s);
+    if(li && visited.has(s)) li.classList.add('visited');
+  });
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// close sidebar when clicking outside
+document.addEventListener('click',e=>{
+  const sb = document.getElementById('sidebar');
+  if(window.innerWidth<=768 && sb.classList.contains('open') &&
+     !sb.contains(e.target) && e.target.id!=='hamburger'){
+    sb.classList.remove('open');
+  }
+});
+
+// ── TABS ───────────────────────────────────────────────────
+function showTab(btn, panelId){
+  const container = btn.closest('.tabs');
+  container.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  container.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+// ── ACCORDION ──────────────────────────────────────────────
+function toggleAcc(header){
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  // close all
+  document.querySelectorAll('.acc-body').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.acc-header').forEach(h=>h.classList.remove('open'));
+  if(!isOpen){ body.classList.add('open'); header.classList.add('open'); }
+}
+
+// ── QUIZ ───────────────────────────────────────────────────
+let score = 0;
+let answered = 0;
+const total = 10;
+
+const feedbacks = [
+  {ok:'✅ Correcto. La opción B tiene verbo imperativo («debe permitir»), actor específico (administrador), acción concreta (generar reporte) y parámetros definidos (filtrable por fecha y categoría). Las otras opciones son vagas o son necesidades, no requisitos.', ko:'❌ Incorrecto. La respuesta correcta es B. Las opciones A, C y D son ambiguas, no verificables o expresan deseos del cliente, no especificaciones del sistema.'},
+  {ok:'✅ Correcto. «Quiero saber cuánto gana cada estilista sin hacer cuentas a mano» es el estado deseado por Valentina, expresado de forma subjetiva y declarativa. El requisito derivado sería: «El sistema debe generar reporte mensual de comisiones por estilista».', ko:'❌ Incorrecto. Esto es una NECESIDAD. Aún no es un requisito porque no especifica cómo el sistema debe satisfacerla ni es verificable tal como está.'},
+  {ok:'✅ Correcto. Este es un Requisito No Funcional de Rendimiento porque define una restricción de calidad (tiempo de respuesta < 2 s bajo carga específica). No describe una función que el usuario ejecuta; describe cómo debe ser el sistema.', ko:'❌ Incorrecto. La respuesta es B. Este requisito no describe una función del sistema sino una propiedad de calidad (rendimiento). Siempre que veas tiempos de respuesta, capacidad o recursos, es un RNF.'},
+  {ok:'✅ Correcto. La observación o «shadowing» consiste en acompañar al usuario en su trabajo real. Es ideal cuando el usuario hace las cosas de forma automática y no sabe articularlas verbalmente. «Ver para creer» es la clave de esta técnica.', ko:'❌ Incorrecto. La técnica más adecuada es la Observación (shadowing). Las encuestas y entrevistas cerradas requieren que el usuario pueda articular respuestas. El análisis de documentos funciona para sistemas existentes.'},
+  {ok:'✅ Correcto. La diferencia clave está en la estructura de las preguntas: abierta = invita a narrar libremente; cerrada = ofrece opciones predefinidas (sí/no, escalas, selección múltiple). La duración no determina el tipo.', ko:'❌ Incorrecto. La diferencia es la estructura de las preguntas: abiertas (narración libre) vs cerradas (opciones predefinidas). Ambos tipos pueden aplicarse a cualquier tipo de cliente.'},
+  {ok:'✅ Correcto. El Criterio de Aceptación define la condición objetiva y verificable que permite confirmar que el requisito está correctamente implementado. Sin criterio de aceptación, no puedes saber si el requisito «pasó» o «falló» en las pruebas.', ko:'❌ Incorrecto. El Criterio de Aceptación sirve para verificar la implementación, no para describir ni para aprobar políticamente. Piensa en él como el «caso de prueba mínimo» del requisito.'},
+  {ok:'✅ Correcto. Para un negocio de calzado con tallas específicas (35–46), un CHECK constraint garantiza integridad de negocio: no puede entrar una talla 12 ni una talla NULL. El NOT NULL asegura que siempre se registre este dato crítico para el control de inventario.', ko:'❌ Incorrecto. La respuesta correcta es B. Permitir NULL o un rango irrestricto generaría datos inconsistentes que romperían la lógica del inventario por talla, que es el corazón del sistema.'},
+  {ok:'✅ Correcto. En MoSCoW: Must Have = imprescindible (sin esto no funciona), Should Have = importante pero diferible, Could Have = deseable si hay tiempo, Won\'t Have = fuera del alcance de esta versión.', ko:'❌ Incorrecto. La respuesta correcta es Should Have. «Must Have» es para requisitos críticos sin los que el sistema no sirve. «Could Have» es para deseos. «Won\'t Have» es para funcionalidades explícitamente excluidas.'},
+  {ok:'✅ Correcto. Un sistema sin RNF puede tener todas las funciones pero ser inutilizable: responde en 30 segundos (rendimiento), cualquiera puede entrar (seguridad), los usuarios no entienden cómo usarlo (usabilidad), cae el 30% del tiempo (disponibilidad).', ko:'❌ Incorrecto. La respuesta correcta es C. Los RNF son tan importantes como los RF. Un sistema lento, inseguro o inaccesible no tiene valor comercial aunque funcione correctamente en términos de lógica de negocio.'},
+  {ok:'✅ Correcto. La IR es iterativa: los requisitos evolucionan durante el proyecto. En ágil, se elicitan en cada sprint. En cascada, se intenta completarlos al inicio. En ambos casos, la gestión de cambios es inevitable y debe planificarse.', ko:'❌ Incorrecto. La IR no es una actividad de una sola vez. Los requisitos cambian: el cliente descubre nuevas necesidades, el mercado cambia, los desarrolladores encuentran restricciones técnicas. Asumir que los requisitos son fijos desde el inicio es una de las principales causas de fracaso en proyectos de software.'},
+];
+
+function answerQ(btn, qIdx, isCorrect){
+  const card = btn.closest('.quiz-card');
+  const opts = card.querySelectorAll('.opt');
+  opts.forEach(o=>{
+    o.classList.add('disabled');
+    if(o===btn) o.classList.add(isCorrect?'correct':'wrong');
+    else if(isCorrect===false && o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+  });
+  const fb = document.getElementById('fb-'+qIdx);
+  const f = feedbacks[qIdx];
+  fb.textContent = isCorrect ? f.ok : f.ko;
+  fb.className = 'feedback show '+(isCorrect?'ok':'ko');
+  if(isCorrect) score++;
+  answered++;
+  if(answered===total){
+    setTimeout(()=>{
+      const sc = document.getElementById('quiz-score');
+      sc.style.display='block';
+      document.getElementById('score-num').textContent = score+'/'+total;
+      const pct = score/total*100;
+      let msg = '';
+      if(pct>=90) msg='🏆 ¡Excelente! Dominas los fundamentos de la Ingeniería de Requisitos. Estás listo para la sesión práctica.';
+      else if(pct>=70) msg='👍 Muy bien. Tienes una base sólida. Repasa los conceptos donde fallaste antes de la sesión.';
+      else if(pct>=50) msg='📚 Vas por buen camino. Te recomendamos releer las secciones 2 y 3 del manual antes de la clase.';
+      else msg='💪 Sigue estudiando. Vuelve al inicio del manual y trabaja cada sección con calma. ¡Tú puedes!';
+      document.getElementById('score-msg').textContent = msg;
+      sc.scrollIntoView({behavior:'smooth'});
+    },600);
+  }
+}
+
+function resetQuiz(){
+  score=0; answered=0;
+  document.querySelectorAll('.quiz-card .opt').forEach(o=>{
+    o.classList.remove('correct','wrong','disabled');
+  });
+  document.querySelectorAll('.feedback').forEach(f=>{
+    f.className='feedback'; f.textContent='';
+  });
+  document.getElementById('quiz-score').style.display='none';
+  document.getElementById('quiz-container').scrollIntoView({behavior:'smooth'});
+}
+
+// ── INVENTARIO BUILDER ──────────────────────────────────────
+let invRows = [];
+
+function addReq(){
+  const id     = document.getElementById('f-id').value.trim();
+  const tipo   = document.getElementById('f-tipo').value;
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const desc   = document.getElementById('f-desc').value.trim();
+  const prior  = document.getElementById('f-prior').value;
+  const fuente = document.getElementById('f-fuente').value.trim();
+  const estado = document.getElementById('f-estado').value;
+
+  if(!id||!nombre||!desc){
+    alert('Por favor completa al menos: ID, Nombre y Descripción.');
+    return;
+  }
+  invRows.push({id,tipo,nombre,desc,prior,fuente,estado});
+  renderInv();
+  clearForm();
+}
+
+function renderInv(){
+  const wrap = document.getElementById('inv-preview');
+  if(invRows.length===0){
+    wrap.innerHTML='<p class="placeholder">Agrega requisitos usando el formulario de arriba ↑</p>';
+    return;
+  }
+  const tipoBadge={RF:'badge-rf',RNF:'badge-rnf',RAD:'badge-rad'};
+  const priorBadge={ALTA:'badge-a',MEDIA:'',BAJA:'badge-b'};
+  let html=`<div class="inv-table-wrap"><table class="inv-table">
+    <thead><tr><th>ID</th><th>Tipo</th><th>Nombre</th><th class="desc">Descripción</th><th>Prior.</th><th>Fuente</th><th>Estado</th></tr></thead><tbody>`;
+  invRows.forEach((r,i)=>{
+    const bg = i%2===0?'background:#f8f9fb':'';
+    html+=`<tr style="${bg}">
+      <td style="font-family:var(--mono);font-size:.72rem;font-weight:600">${r.id}</td>
+      <td><span class="${tipoBadge[r.tipo]||''}">${r.tipo}</span></td>
+      <td>${r.nombre}</td>
+      <td class="desc">${r.desc}</td>
+      <td><span class="${priorBadge[r.prior]||''}" style="padding:2px 6px;border-radius:4px;font-size:.72rem;font-weight:700">${r.prior}</span></td>
+      <td>${r.fuente}</td>
+      <td>${r.estado}</td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
+}
+
+function clearForm(){
+  ['f-id','f-nombre','f-desc','f-fuente'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-tipo').value='RF';
+  document.getElementById('f-prior').value='ALTA';
+  document.getElementById('f-estado').value='Propuesto';
+}
+
+function exportInv(){
+  if(invRows.length===0){alert('No hay requisitos para exportar.');return;}
+  let csv='ID,Tipo,Nombre,Descripcion,Prioridad,Fuente,Estado\n';
+  invRows.forEach(r=>{
+    csv+=`"${r.id}","${r.tipo}","${r.nombre}","${r.desc.replace(/"/g,'""')}","${r.prior}","${r.fuente}","${r.estado}"\n`;
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='inventario_requisitos.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ── COPY CODE ───────────────────────────────────────────────
+function copyCode(btn){
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(()=>{
+    btn.textContent='✓ Copiado';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000);
+  });
+}
+
+// ── INIT ────────────────────────────────────────────────────
+showSection('inicio');
+</script>
+</body>
+</html>
